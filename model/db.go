@@ -19,7 +19,6 @@ func InitDb() {
 		utils.DbPort,
 		utils.DbName,
 	))
-	defer db.Close()
 	if err != nil {
 		fmt.Printf("连接数据库失败，请检查参数：", err)
 	}
@@ -38,4 +37,6 @@ func InitDb() {
 
 	//设置连接的最大可复用时间
 	db.DB().SetConnMaxLifetime(10 * time.Second)
+
+	//defer db.Close()
 }
