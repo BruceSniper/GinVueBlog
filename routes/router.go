@@ -2,26 +2,57 @@ package routes
 
 import (
 	v1 "GinVueBlog/api/v1"
+	"GinVueBlog/middleware"
 	"GinVueBlog/utils"
 	"github.com/gin-gonic/gin"
 )
 
 func InitRouter() {
 	gin.SetMode(utils.AppMode)
-	r := gin.Default()
+	r := gin.New()
+	r.Use(middleware.Log())
+	r.Use(gin.Recovery())
+	r.Use(middleware.Cors())
 
-	routerv1 := r.Group("api/v1")
+	r.LoadHTMLGlob("static/index.html")
+	r.Static("static", "static/static")
+	r.StaticFile("favicon.ico", "static/favicon.ico")
+
+	r.GET("admin", func(c *gin.Context) {
+		c.HTML(200, "index.html", nil)
+	})
+
+	auth := r.Group("api/v1")
+	auth.Use(middleware.JwtToken())
 	{
-		// User模块的路由接口
-		routerv1.POST("user/add", v1.AddUser)
-		//routerv1.GET("users", v1.GetUsers)
-		//routerv1.PUT("user/:id", v1.EditUser)
-		//routerv1.DELETE("user/:id", v1.DeleteUser)
+		// 用户模块的路由接口
+		auth.PUT("user/:id", v1.EditUser)
+		auth.DELETE("user/:id", v1.DeleteUser)
+		// 分类模块的路由接口
+		auth.POST("category/add", v1.AddCategory)
+		auth.PUT("category/:id", v1.EditCate)
+		auth.DELETE("category/:id", v1.DeleteCate)
+		// 文章模块的路由接口
+		auth.POST("article/add", v1.AddArticle)
+		auth.PUT("article/:id", v1.EditArt)
+		auth.DELETE("article/:id", v1.DeleteArt)
+		// 上传文件
+		auth.POST("upload", v1.UpLoad)
+	}
+	router := r.Group("api/v1")
+	{
 
-		//分类模块的路由接口
-
-		//文章模块的路由接口
+		router.POST("user/add", v1.AddUser)
+		router.GET("user/:id", v1.GetUserInfo)
+		router.GET("users", v1.GetUsers)
+		router.GET("category", v1.GetCate)
+		router.GET("category/:id", v1.GetCateInfo)
+		router.GET("article", v1.GetArt)
+		router.GET("article/list/:id", v1.GetCateArt)
+		router.GET("article/info/:id", v1.GetArtInfo)
+		router.POST("login", v1.Login)
 	}
 
-	r.Run(utils.HttpPort)
+	_ = r.Run(utils.HttpPort)
+
 }
