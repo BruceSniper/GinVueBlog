@@ -3,22 +3,35 @@ package model
 import (
 	"GinVueBlog/utils/errmsg"
 	"encoding/base64"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/scrypt"
+	"gorm.io/gorm"
 	"log"
 )
 
 type User struct {
 	gorm.Model
-	Username string `gorm:"type:varchar(20);not null " json:"username" validate:"required,min=4,max=12" label:"用户名"`
+	Username string `gorm:"type:varchar(20);not null" json:"username" validate:"required,min=4,max=12" label:"用户名"`
 	Password string `gorm:"type:varchar(20);not null" json:"password" validate:"required,min=6,max=20" label:"密码"`
-	Role     int    `gorm:"type:int;DEFAULT:2" json:"role" validate:"required,gte=2" label:"角色码"`
+	Role     int    `gorm:"type:int" json:"role" validate:"required,gte=2" label:"角色码"`
 }
 
-//查询用户是否存在
+// 查询用户是否存在
 func CheckUser(name string) (code int) {
 	var user User
 	db.Select("id").Where("username = ?", name).First(&user)
+	if user.ID > 0 {
+		return errmsg.ERROR_USERNAME_USED //1001
+	}
+	return errmsg.SUCCESS
+}
+
+// 更新查询
+func CheckUpUser(id int, name string) (code int) {
+	var user User
+	db.Select("id, username").Where("username = ?", name).First(&user)
+	if user.ID == uint(id) {
+		return errmsg.SUCCESS
+	}
 	if user.ID > 0 {
 		return errmsg.ERROR_USERNAME_USED //1001
 	}
@@ -33,6 +46,16 @@ func CreateUser(data *User) int {
 		return errmsg.ERROR // 500
 	}
 	return errmsg.SUCCESS
+}
+
+// 查询用户
+func GetUser(id int) (User, int) {
+	var user User
+	err := db.Where("ID = ?", id).First(&user).Error
+	if err != nil {
+		return user, errmsg.ERROR
+	}
+	return user, errmsg.SUCCESS
 }
 
 // 查询用户列表
@@ -69,29 +92,6 @@ func EditUser(id int, data *User) int {
 		return errmsg.ERROR
 	}
 	return errmsg.SUCCESS
-}
-
-// 更新查询
-func CheckUpUser(id int, name string) (code int) {
-	var user User
-	db.Select("id, username").Where("username = ?", name).First(&user)
-	if user.ID == uint(id) {
-		return errmsg.SUCCESS
-	}
-	if user.ID > 0 {
-		return errmsg.ERROR_USERNAME_USED //1001
-	}
-	return errmsg.SUCCESS
-}
-
-// 查询用户
-func GetUser(id int) (User, int) {
-	var user User
-	err := db.Where("ID = ?", id).First(&user).Error
-	if err != nil {
-		return user, errmsg.ERROR
-	}
-	return user, errmsg.SUCCESS
 }
 
 // 删除用户
