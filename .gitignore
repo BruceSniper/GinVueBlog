@@ -2,3 +2,4 @@
 .idea
 config
 frontend/node_modules
+log
