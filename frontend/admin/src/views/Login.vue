@@ -1,7 +1,12 @@
 <template>
   <div class="container">
     <div class="loginBox">
-      <a-form-model :rules="rules" :model="formdata" class="loginForm">
+      <a-form-model
+        ref="loginFormRef"
+        :rules="rules"
+        :model="formdata"
+        class="loginForm"
+      >
         <a-form-model-item prop="username">
           <a-input v-model="formdata.username" placeholder="请输入用户名">
             <a-icon slot="prefix" type="user" style="color:rgba(0,0,0,.25)" />
@@ -13,14 +18,19 @@
             v-model="formdata.password"
             placeholder="请输入密码"
             type="password"
+            v-on:keyup.enter="login"
           >
             <a-icon slot="prefix" type="lock" style="color:rgba(0,0,0,.25)" />
           </a-input>
         </a-form-model-item>
 
         <a-form-model-item class="loginButton">
-          <a-button type="primary" style="margin:10px">登录</a-button>
-          <a-button type="info" style="margin:10px">取消</a-button>
+          <a-button type="primary" style="margin:10px" @click="login"
+            >登录</a-button
+          >
+          <a-button type="info" style="margin:10px" @click="resetForm"
+            >取消</a-button
+          >
         </a-form-model-item>
       </a-form-model>
     </div>
@@ -57,6 +67,22 @@ export default {
           }
         ]
       }
+    }
+  },
+  methods: {
+    resetForm() {
+      // console.log(this.$refs)
+      this.$refs.loginFormRef.resetFields()
+    },
+    login() {
+      this.$refs.loginFormRef.validate(async valid => {
+        if (!valid) return this.$message.error('输入非法数据，请重新输入')
+        const { data: res } = await this.$http.post('login', this.formdata)
+        // console.log(res)
+        if (res.status != 200) return this.$message.error(res.message)
+        window.sessionStorage.setItem('token', res.token)
+        this.$router.push('admin/index')
+      })
     }
   }
 }
