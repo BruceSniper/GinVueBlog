@@ -15,7 +15,7 @@ type Article struct {
 	Img     string `gorm:"type:varchar(100)" json:"img"`
 }
 
-// 新增文章
+// CreateArt 新增文章
 func CreateArt(data *Article) int {
 	err := db.Create(&data).Error
 	if err != nil {
@@ -24,7 +24,7 @@ func CreateArt(data *Article) int {
 	return errmsg.SUCCESS
 }
 
-//  查询分类下的所有文章
+// GetCateArt 查询分类下的所有文章
 func GetCateArt(id int, pageSize int, pageNum int) ([]Article, int, int64) {
 	var cateArtList []Article
 	var total int64
@@ -36,7 +36,7 @@ func GetCateArt(id int, pageSize int, pageNum int) ([]Article, int, int64) {
 	return cateArtList, errmsg.SUCCESS, total
 }
 
-//  查询单个文章
+// GetArtInfo 查询单个文章
 func GetArtInfo(id int) (Article, int) {
 	var art Article
 	err := db.Preload("Category").Where("id = ?", id).First(&art).Error
@@ -46,7 +46,7 @@ func GetArtInfo(id int) (Article, int) {
 	return art, errmsg.SUCCESS
 }
 
-//  查询文章列表
+// GetArt 查询文章列表
 func GetArt(title string, pageSize int, pageNum int) ([]Article, int, int64) {
 	var articleList []Article
 	var err error
@@ -71,7 +71,7 @@ func GetArt(title string, pageSize int, pageNum int) ([]Article, int, int64) {
 	return articleList, errmsg.SUCCESS, total
 }
 
-// 编辑文章
+// EditArt 编辑文章
 func EditArt(id int, data *Article) int {
 	var art Article
 	var maps = make(map[string]interface{})
@@ -88,7 +88,7 @@ func EditArt(id int, data *Article) int {
 	return errmsg.SUCCESS
 }
 
-// 删除文章
+// DeleteArt 删除文章
 func DeleteArt(id int) int {
 	var art Article
 	err = db.Where("id = ? ", id).Delete(&art).Error

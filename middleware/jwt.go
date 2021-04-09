@@ -17,7 +17,7 @@ type MyClaims struct {
 	jwt.StandardClaims
 }
 
-// 生成token
+// SetToken 生成token
 func SetToken(username string) (string, int) {
 	expireTime := time.Now().Add(10 * time.Hour)
 	SetClaims := MyClaims{
@@ -67,7 +67,7 @@ func CheckToken(token string) (*MyClaims, int) {
 	return nil, errmsg.ERROR_TOKEN_WRONG
 }
 
-// jwt中间件
+// JwtToken jwt中间件
 func JwtToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var code int

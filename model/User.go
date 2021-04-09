@@ -15,7 +15,7 @@ type User struct {
 	Role     int    `gorm:"type:int" json:"role" validate:"required,gte=2" label:"角色码"`
 }
 
-// 查询用户是否存在
+// CheckUser 查询用户是否存在
 func CheckUser(name string) (code int) {
 	var user User
 	db.Select("id").Where("username = ?", name).First(&user)
@@ -25,7 +25,7 @@ func CheckUser(name string) (code int) {
 	return errmsg.SUCCESS
 }
 
-// 更新查询
+// CheckUpUser 更新查询
 func CheckUpUser(id int, name string) (code int) {
 	var user User
 	db.Select("id, username").Where("username = ?", name).First(&user)
@@ -38,7 +38,7 @@ func CheckUpUser(id int, name string) (code int) {
 	return errmsg.SUCCESS
 }
 
-// 新增用户
+// CreateUser 新增用户
 func CreateUser(data *User) int {
 	//data.Password = ScryptPw(data.Password)
 	err := db.Create(&data).Error
@@ -48,7 +48,7 @@ func CreateUser(data *User) int {
 	return errmsg.SUCCESS
 }
 
-// 查询用户
+// GetUser 查询用户
 func GetUser(id int) (User, int) {
 	var user User
 	err := db.Where("ID = ?", id).First(&user).Error
@@ -58,7 +58,7 @@ func GetUser(id int) (User, int) {
 	return user, errmsg.SUCCESS
 }
 
-// 查询用户列表
+// GetUsers 查询用户列表
 func GetUsers(username string, pageSize int, pageNum int) ([]User, int64) {
 	var users []User
 	var total int64
@@ -81,7 +81,7 @@ func GetUsers(username string, pageSize int, pageNum int) ([]User, int64) {
 	return users, total
 }
 
-// 编辑用户信息
+// EditUser 编辑用户信息
 func EditUser(id int, data *User) int {
 	var user User
 	var maps = make(map[string]interface{})
@@ -94,7 +94,7 @@ func EditUser(id int, data *User) int {
 	return errmsg.SUCCESS
 }
 
-// 删除用户
+// DeleteUser 删除用户
 func DeleteUser(id int) int {
 	var user User
 	err = db.Where("id = ? ", id).Delete(&user).Error
@@ -104,7 +104,7 @@ func DeleteUser(id int) int {
 	return errmsg.SUCCESS
 }
 
-// 密码加密
+// BeforeSave 密码加密
 func (u *User) BeforeSave(_ *gorm.DB) (err error) {
 	u.Password = ScryptPw(u.Password)
 	return nil
@@ -123,7 +123,7 @@ func ScryptPw(password string) string {
 	return fpw
 }
 
-// 登录验证
+// CheckLogin 登录验证
 func CheckLogin(username string, password string) int {
 	var user User
 
